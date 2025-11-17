@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Health Chatbot - School Science Fair</title>
+
+    <!-- Optional: Uncomment to add a Gujarati font if you use Gujarati UI -->
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;700&display=swap" rel="stylesheet"> -->
+
+    <style>
+        :root{
+            --primary-500: #667eea;
+            --primary-700: #764ba2;
+            --muted: #666;
+            --card-bg: #ffffff;
+            --glass: rgba(255,255,255,0.85);
+            --max-width: 980px;
+        }
+
+        /* Reset/Base */
+        *{box-sizing:border-box;margin:0;padding:0}
+        html,body{height:100%}
+        body{
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-700) 100%);
+            color: #222;
+            padding: 20px;
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+            line-height:1.4;
+        }
+
+        /* Outer container */
+        .container{
+            max-width:var(--max-width);
+            margin:0 auto;
+        }
+
+        /* Card */
+        .card{
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 26px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+            margin-bottom: 20px;
+        }
+
+        /* Header */
+        header.header{
+            text-align:center;
+            padding:18px;
+            border-radius:18px;
+            margin-bottom:18px;
+        }
+        .header-content{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:18px;
+            flex-wrap:wrap;
+        }
+        .school-logo{font-size: clamp(36px, 6vw, 64px)}
+        .school-info h1{
+            color: var(--primary-500);
+            font-size: clamp(18px, 2.6vw, 24px);
+            margin-bottom:4px;
+        }
+        .school-info p{color:var(--muted);font-size:13px;margin:2px 0}
+        .dise-code{font-weight:700;color:var(--primary-700);font-size:13px}
+
+        .project-title{
+            margin-top:12px;
+            padding-top:12px;
+            border-top:1px solid #f0f0f0;
+        }
+        .project-title h2{color:var(--primary-500);font-size:18px}
+        .project-title p{color:#888;font-size:13px}
+
+        /* Language toggle */
+        .language-toggle{display:flex;justify-content:center;gap:10px;margin:14px 0}
+        .lang-btn{
+            padding:10px 18px;border-radius:999px;border:0;background:#fff;color:var(--primary-500);
+            font-weight:700;cursor:pointer;box-shadow:none;transition:all .18s;
+            font-size:14px;
+        }
+        .lang-btn.active{background:var(--primary-500);color:#fff;box-shadow:0 6px 18px rgba(102,126,234,0.25)}
+        .lang-btn:focus{outline:3px solid rgba(102,126,234,0.12)}
+
+        /* Form */
+        .form-section{padding:22px}
+        .section-title{color:var(--primary-500);font-size:20px;text-align:center;margin-bottom:16px}
+        .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+        .form-group{margin-bottom:12px}
+        .form-group label{display:block;font-weight:700;color:#444;margin-bottom:6px;font-size:14px}
+        .form-group input,.form-group select{
+            width:100%;padding:12px;border-radius:10px;border:1.6px solid #e6e6e6;font-size:15px;
+        }
+        .form-group input:focus, .form-group select:focus{outline:none;box-shadow:0 6px 18px rgba(102,126,234,0.08);border-color:var(--primary-500)}
+
+        /* Make select & inputs larger on mobile */
+        .form-group select, .form-group input[type="number"]{min-height:44px}
+
+        .submit-btn{
+            display:inline-flex;align-items:center;justify-content:center;gap:8px;
+            width:100%;padding:14px;border-radius:12px;border:0;
+            background:linear-gradient(135deg,var(--primary-500),var(--primary-700));
+            color:#fff;font-weight:800;font-size:16px;cursor:pointer;margin-top:8px;
+        }
+        .submit-btn:disabled{opacity:.6;cursor:not-allowed}
+
+        .info-box{margin-top:12px;padding:12px;border-left:4px solid var(--primary-500);background:#f7fbff;border-radius:8px}
+
+        /* results */
+        .results-section{padding:18px}
+        .results-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+        .new-report-btn{padding:10px 18px;border-radius:10px;border:0;background:var(--primary-500);color:#fff;cursor:pointer;font-weight:700}
+
+        /* Score card */
+        .score-card{display:flex;align-items:center;justify-content:space-around;padding:18px;border-radius:12px;background:linear-gradient(135deg, rgba(102,126,234,0.06), rgba(118,75,162,0.04));gap:18px;flex-wrap:wrap}
+        .score-circle{width:clamp(120px,28vw,200px);height:clamp(120px,28vw,200px);position:relative}
+        .score-circle svg{width:100%;height:100%;display:block}
+        .score-text{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center}
+        #scoreValue{font-size:clamp(20px,6vw,44px);font-weight:800;color:var(--primary-500);display:block}
+        .score-label{font-size:13px;color:#666;margin-top:6px;display:block}
+        .score-details{display:flex;flex-direction:column;gap:12px}
+        .detail-item{background:#fff;padding:12px 18px;border-radius:10px;box-shadow:0 6px 14px rgba(0,0,0,0.06)}
+        .detail-label{font-weight:700;color:#666}
+        .detail-value{color:var(--primary-500);font-weight:800;font-size:16px}
+
+        /* recommendations */
+        .recommendations{background:#fbfbfb;border-radius:12px;padding:18px;white-space:pre-wrap;line-height:1.6;font-size:15px}
+        .recommendations-content{line-height:1.6}
+        .recommendations h3{color:var(--primary-500);margin-top:10px}
+        .recommendations strong{color:var(--primary-700)}
+
+        /* error */
+        .error-message{background:#fff3cd;border:1px solid #ffd966;border-radius:12px;padding:14px;margin-top:12px;text-align:center;color:#856404}
+
+        footer.footer{text-align:center;color:#fff;margin-top:12px;font-size:13px}
+
+        /* small-screen tweaks */
+        @media (max-width: 768px){
+            .form-grid{grid-template-columns:1fr}
+            .header-content{gap:12px}
+            .card{padding:16px}
+            .score-card{padding:16px}
+            .project-title h2{font-size:16px}
+        }
+
+        /* tighter mobile */
+        @media (max-width: 420px){
+            body{padding:12px}
+            .header{padding:14px}
+            .school-info h1{font-size:16px}
+            .lang-btn{padding:9px 14px;font-size:13px}
+            .section-title{font-size:18px}
+            .submit-btn{padding:12px;font-size:15px}
+            .score-circle{width:140px;height:140px}
+            .recommendations{padding:14px;font-size:14px}
+            .detail-item{padding:10px 12px}
+        }
+
+        /* subtle animation */
+        .fade-in { animation: fadeIn .45s ease both; }
+        @keyframes fadeIn{ from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- Header card -->
+        <header class="card header fade-in">
+            <div class="header-content">
+                <div class="school-logo">🏫</div>
+                <div class="school-info">
+                    <h1>PRIMARY SCHOOL NAIKIWAD VANZANA</h1>
+                    <p>TALUKA - CHIKHLI, DIST - NAVSARI</p>
+                    <p class="dise-code">SCHOOL DISE CODE - 24240108404</p>
+                </div>
+            </div>
+
+            <div class="project-title" style="margin-top:12px">
+                <h2>🏥 AI Health Assistant</h2>
+                <p>Science Fair Project 2025</p>
+            </div>
+        </header>
+
+        <!-- form card -->
+        <section class="card form-section fade-in" id="formSection">
+            <div class="language-toggle" style="margin-bottom:10px">
+                <button id="englishBtn" class="lang-btn active">English</button>
+                <button id="gujaratiBtn" class="lang-btn">ગુજરાતી</button>
+            </div>
+
+            <h2 class="section-title">📝 Enter Your Details</h2>
+
+            <form id="healthForm" novalidate>
+                <div class="form-grid" style="margin-top:12px">
+                    <div class="form-group">
+                        <label for="gender">Gender / લિંગ:</label>
+                        <select id="gender" required>
+                            <option value="">Select / પસંદ કરો</option>
+                            <option value="male">Male / પુરુષ</option>
+                            <option value="female">Female / સ્ત્રી</option>
+                            <option value="other">Other / અન્ય</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="age">Age (years) / ઉંમર (વર્ષ):</label>
+                        <input type="number" id="age" min="1" max="100" required placeholder="Enter your age">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="height">Height (cm) / ઊંચાઈ (સે.મી.):</label>
+                        <input type="number" id="height" min="30" max="250" step="0.1" required placeholder="Enter your height">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="weight">Weight (kg) / વજન (કિ.ગ્રા.):</label>
+                        <input type="number" id="weight" min="5" max="200" step="0.1" required placeholder="Enter your weight">
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn" style="margin-top:12px">
+                    <span class="btn-text">Generate Health Report 🚀</span>
+                    <span class="btn-loader" style="display:none;">⏳ Generating...</span>
+                </button>
+            </form>
+
+            <div class="info-box" style="margin-top:12px">
+                <p>💡 <strong>Tip:</strong> Make sure to enter accurate information for the best health recommendations!</p>
+            </div>
+        </section>
+
+        <!-- results card (initially hidden) -->
+        <section class="card results-section fade-in" id="resultsSection" style="display:none">
+            <div class="results-header">
+                <h2 class="section-title" style="margin:0">📊 Your Health Report</h2>
+                <button class="new-report-btn" id="newReportBtn">📝 New Report</button>
+            </div>
+
+            <div class="score-card" style="margin-top:12px">
+                <div class="score-circle" aria-hidden="true">
+                    <!-- responsive svg using viewBox -->
+                    <svg viewBox="0 0 200 200" role="img" aria-label="Health score ring">
+                        <circle cx="100" cy="100" r="90" fill="none" stroke="#e0e0e0" stroke-width="15"/>
+                        <circle id="scoreCircle" cx="100" cy="100" r="90" fill="none" stroke="#4CAF50"
+                                stroke-width="15" stroke-dasharray="565.48" stroke-dashoffset="565.48"
+                                transform="rotate(-90 100 100)" stroke-linecap="round"/>
+                    </svg>
+                    <div class="score-text">
+                        <span id="scoreValue">0</span>
+                        <span class="score-label">Health Score</span>
+                    </div>
+                </div>
+
+                <div class="score-details" aria-live="polite">
+                    <div class="detail-item">
+                        <span class="detail-label">BMI:</span>
+                        <div id="bmiValue" class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Category:</span>
+                        <div id="bmiCategory" class="detail-value">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="recommendations" class="recommendations" style="margin-top:12px">
+                <!-- Filled by JS -->
+            </div>
+        </section>
+
+        <div id="errorMessage" class="error-message" style="display:none;margin-top:8px">
+            <p id="errorText"></p>
+        </div>
+
+        <footer class="footer" style="margin-top:10px">
+            <p>Made with ❤️ by Students </p>
+        </footer>
+    </div>
+
+    <script>
+        // Use a relative base so it works when served from the same backend origin
+        const API_BASE_URL = ''; // will call '/api/health-report' relative to current origin
+        let currentLanguage = 'english';
+
+        // DOM
+        const healthForm = document.getElementById('healthForm');
+        const formSection = document.getElementById('formSection');
+        const resultsSection = document.getElementById('resultsSection');
+        const errorMessage = document.getElementById('errorMessage');
+        const submitBtn = document.getElementById('submitBtn');
+        const newReportBtn = document.getElementById('newReportBtn');
+        const englishBtn = document.getElementById('englishBtn');
+        const gujaratiBtn = document.getElementById('gujaratiBtn');
+
+        // Events
+        healthForm.addEventListener('submit', handleFormSubmit);
+        newReportBtn.addEventListener('click', showForm);
+        englishBtn.addEventListener('click', () => setLanguage('english'));
+        gujaratiBtn.addEventListener('click', () => setLanguage('gujarati'));
+
+        function setLanguage(language){
+            currentLanguage = language;
+            if(language === 'english'){
+                englishBtn.classList.add('active');
+                gujaratiBtn.classList.remove('active');
+                // optionally toggle UI text here
+                document.body.classList.remove('gujarati');
+            } else {
+                gujaratiBtn.classList.add('active');
+                englishBtn.classList.remove('active');
+                // when using Gujarati UI, you can add class .gujarati to body and supply font via <link>
+                document.body.classList.add('gujarati');
+            }
+        }
+
+        async function handleFormSubmit(event){
+            event.preventDefault();
+            errorMessage.style.display = 'none';
+
+            const formData = {
+                gender: document.getElementById('gender').value,
+                age: parseInt(document.getElementById('age').value),
+                height: parseFloat(document.getElementById('height').value),
+                weight: parseFloat(document.getElementById('weight').value),
+                language: currentLanguage
+            };
+
+            if(!validateFormData(formData)) return;
+
+            setLoadingState(true);
+            try {
+                const resp = await fetch(`${API_BASE_URL}/api/health-report`, {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await resp.json();
+                if(data.success){
+                    displayResults(data);
+                } else {
+                    showError(data.error || 'Failed to generate health report. Please try again.');
+                }
+            } catch(err){
+                console.error(err);
+                showError('Connection error. Please make sure the server is running.');
+            } finally {
+                setLoadingState(false);
+            }
+        }
+
+        function validateFormData(data){
+            if(!data.gender){ showError('Please select your gender'); return false; }
+            if(!Number.isFinite(data.age) || data.age < 1 || data.age > 100){ showError('Age must be between 1 and 100 years'); return false; }
+            if(!Number.isFinite(data.height) || data.height < 30 || data.height > 250){ showError('Height must be between 30 and 250 cm'); return false; }
+            if(!Number.isFinite(data.weight) || data.weight < 5 || data.weight > 200){ showError('Weight must be between 5 and 200 kg'); return false; }
+            return true;
+        }
+
+        function displayResults(data){
+            formSection.style.display = 'none';
+            resultsSection.style.display = 'block';
+
+            animateHealthScore(data.health_score);
+
+            const bmiVal = (typeof data.bmi === 'number') ? data.bmi.toFixed(1) : data.bmi;
+            document.getElementById('bmiValue').textContent = bmiVal;
+            document.getElementById('bmiCategory').textContent = data.bmi_category || '--';
+
+            // color coding
+            const bmiCategoryElement = document.getElementById('bmiCategory');
+            if(data.bmi_category === 'Normal weight'){ bmiCategoryElement.style.color = '#4CAF50'; }
+            else if(data.bmi_category === 'Underweight' || data.bmi_category === 'Overweight'){ bmiCategoryElement.style.color = '#FF9800'; }
+            else { bmiCategoryElement.style.color = '#F44336'; }
+
+            displayRecommendations(data.recommendations || '');
+
+            // on mobile, ensure results are visible
+            setTimeout(()=>{ resultsSection.scrollIntoView({behavior:'smooth'}); }, 150);
+        }
+
+        function animateHealthScore(targetScore){
+            const scoreValueElement = document.getElementById('scoreValue');
+            const scoreCircle = document.getElementById('scoreCircle');
+            const radius = 90;
+            const circumference = 2 * Math.PI * radius;
+
+            // ensure stroke-dasharray is set to circumference (in case)
+            scoreCircle.style.strokeDasharray = String(circumference);
+
+            let current = 0;
+            const duration = 1100;
+            const stepTime = 16;
+            const steps = Math.max(1, Math.floor(duration / stepTime));
+            const increment = (targetScore) / steps;
+
+            const anim = setInterval(()=>{
+                current += increment;
+                if(current >= targetScore){ current = targetScore; clearInterval(anim); }
+
+                scoreValueElement.textContent = Math.round(current);
+
+                const offset = circumference - (current / 100) * circumference;
+                scoreCircle.style.strokeDashoffset = String(offset);
+
+                if(current >= 80) scoreCircle.style.stroke = '#4CAF50';
+                else if(current >= 60) scoreCircle.style.stroke = '#FF9800';
+                else scoreCircle.style.stroke = '#F44336';
+            }, stepTime);
+        }
+
+        function displayRecommendations(recommendations){
+            const el = document.getElementById('recommendations');
+            el.innerHTML = formatRecommendations(recommendations);
+        }
+
+        function formatRecommendations(text){
+            if(!text) return `<div class="recommendations-content">No recommendations</div>`;
+            let formatted = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n\n/g, '<br><br>')
+                .replace(/\n/g, '<br>');
+            return `<div class="recommendations-content">${formatted}</div>`;
+        }
+
+        function showForm(){
+            formSection.style.display = 'block';
+            resultsSection.style.display = 'none';
+            errorMessage.style.display = 'none';
+            healthForm.reset();
+            setTimeout(()=>{ formSection.scrollIntoView({behavior:'smooth'}); }, 80);
+        }
+
+        function showError(msg){
+            const txt = document.getElementById('errorText');
+            txt.textContent = msg;
+            errorMessage.style.display = 'block';
+            errorMessage.scrollIntoView({behavior:'smooth'});
+            setTimeout(()=>{ errorMessage.style.display = 'none'; }, 5000);
+        }
+
+        function setLoadingState(isLoading){
+            const btnText = submitBtn.querySelector('.btn-text');
+            const loader = submitBtn.querySelector('.btn-loader');
+            if(isLoading){
+                btnText.style.display = 'none';
+                loader.style.display = 'inline-block';
+                submitBtn.disabled = true;
+            } else {
+                btnText.style.display = 'inline-block';
+                loader.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        }
+
+        // init
+        console.log('Health Chatbot initialized (responsive UI)');
+    </script>
+</body>
+</html>
